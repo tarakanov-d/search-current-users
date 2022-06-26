@@ -1,0 +1,54 @@
+---
+- name: archive and copy docker img
+  hosts: JENKINS
+  become: yes
+
+  tasks:
+    - name: archive container image as a tarball
+      docker_image:
+        name: curr_user:latest
+        archive_path: /mnt/docker_img/curr_user:latest.tar
+        source: pull
+        state: present
+
+
+- name: load docker img on remote host
+  hosts: FLASK
+  become: yes
+
+  tasks:
+    - name: delete tar image on dest host
+      file:
+        path: /mnt/docker_img/curr_user:latest.tar
+        state: absent
+
+    - name: copy tarball to host
+      copy:
+        src: /mnt/docker_img/curr_user:latest.tar
+        dest: /mnt/docker_img/curr_user:latest.tar
+
+    - name: delete current docker container
+      docker_container:
+        name: curr_user
+        state: absent
+
+    - name: delete current docker image
+      docker_image:
+        name: curr_user:latest
+        state: absent
+
+
+    - name: load image from tarball
+      docker_image:
+        name: curr_user:latest
+        load_path: /mnt/docker_img/curr_user:latest.tar
+        state: present
+        source: load
+
+    - name: start container
+      docker_container:
+        name: curr_user
+        image: curr_user:latest
+        detach: yes
+        ports:
+         - "5500:5500"

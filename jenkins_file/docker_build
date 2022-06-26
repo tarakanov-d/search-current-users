@@ -1,0 +1,32 @@
+#!groovy
+// Run docker build
+properties([disableConcurrentBuilds()])
+
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        timestamps()
+    }
+    stages {
+        stage("create docker image") {
+            steps {
+                echo " ============== start building docker ==================="
+                sh 'docker build . -t curr_user:latest'
+                }
+            }
+
+        stage ("starting ansible playbook"){
+            steps {
+                echo " ============== start ansible playbook ==================="
+                ansiblePlaybook (
+                    disableHostKeyChecking: true,
+                    installation: 'ansible',
+                    inventory: '/etc/ansible/hosts',
+                    playbook: '/etc/ansible/deploy_docker_img.yml'
+                )
+                }
+            }
+    }
+}

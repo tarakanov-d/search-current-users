@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block users %}
+<table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Логин</th>
+        <th>Сервер</th>
+        <th>Клиент</th>
+        <th>Дата</th>
+        <th>Время</th>
+      </tr>
+    </thead>
+    <tbody>
+     {% for user in users %}
+      <tr>
+        <td>{{ user.user_login }}</td>
+        <td>{{ user.Server }}</td>
+        <td>{{ user.client }}</td>
+        <td>{{ user.Date }}</td>
+        <td>{{ user.Time }}</td>
+      {% endfor %}
+      </tr>
+    </tbody>
+</table>
+
+{% endblock %}
